@@ -2,12 +2,12 @@ const router = require('koa-router')()
 
 router.prefix('/users')
 
-router.get('/', function (ctx, next) {
-  ctx.body = 'this is a users response!'
-})
+const {find, findById, create, update, delete: del} = require('../controllers/users')
 
-router.get('/bar', function (ctx, next) {
-  ctx.body = 'this is a users/bar response'
-})
+router.get('/', find)
+router.post('/', create)
+router.get('/:id', findById)
+router.put('/:id', update)
+router.delete('/:id', del)
 
 module.exports = router
