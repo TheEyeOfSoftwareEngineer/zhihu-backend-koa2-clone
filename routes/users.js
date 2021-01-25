@@ -1,6 +1,6 @@
 const router = require('koa-router')()
 
-router.prefix('/users')
+router.prefix('/api/users')
 
 const {find, findById, create, update, delete: del} = require('../controllers/users')
 
