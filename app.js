@@ -8,6 +8,16 @@ const logger = require('koa-logger')
 const registerRoutes = require('./routes')
 
 // error handler
+app.use(async (ctx, next) => {
+  try {
+    await next()
+  } catch(err) {
+    ctx.status = err.status || err.statusCode || 500
+    ctx.body = {
+      message: err.message
+    }
+  }
+})
 onerror(app)
 
 // middlewares

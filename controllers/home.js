@@ -1,6 +1,6 @@
 class HomeController {
 
-  index(ctx) {
+  index(ctx) {    
     ctx.body = '<h1>Welcome to Koa2</h1>'
   }
 
