@@ -1,12 +1,24 @@
 const Koa = require('koa')
 const app = new Koa()
+
 const json = require('koa-json')
-const onerror = require('koa-json-error')
+
 const parameter = require('koa-parameter')
 const bodyparser = require('koa-bodyparser')
+
+const onerror = require('koa-json-error')
 const logger = require('koa-logger')
 
+const mongoose = require('mongoose')
+
 const registerRoutes = require('./routes')
+
+const {CONF} = require('./conf/conf')
+
+mongoose.connect(CONF.mongolink, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
+  console.log("mongo is linking now...")
+})
+mongoose.connection.on('error', console.error)
 
 // error handler
 app.use(onerror({
