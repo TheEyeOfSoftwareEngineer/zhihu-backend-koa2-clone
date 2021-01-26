@@ -2,10 +2,9 @@ const Koa = require('koa')
 const app = new Koa()
 
 const json = require('koa-json')
-
 const parameter = require('koa-parameter')
-const bodyparser = require('koa-bodyparser')
-
+const bodyparser = require('koa-body')
+const path = require('path')
 const onerror = require('koa-json-error')
 const logger = require('koa-logger')
 
@@ -32,7 +31,11 @@ mongoose.connection.on('error', console.error)
 
 // middlewares
 app.use(bodyparser({
-  enableTypes:['json', 'form', 'text']
+  multipart: true, // 代表启动文件
+  formidable: {
+    uploadDir: path.join(__dirname, '/public/uploads'),
+    keepExtensions: true  // 保留扩展名比如图片名称后的png jpg
+  }
 }))
 app.use(json())
 app.use(parameter(app))

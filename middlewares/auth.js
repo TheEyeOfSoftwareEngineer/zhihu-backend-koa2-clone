@@ -5,7 +5,6 @@ const { CONF } = require('../conf/conf')
 //   // 认证: 解析token并获取用户信息
 //   const { authorization = '' }  = ctx.request.header
 //   const token = authorization.replace('Bearer ', '')
-//   console.log(token)
 //   try {
 //     const user = jwt.verify(token, CONF.jwtkey)
 //     ctx.state.user = user
