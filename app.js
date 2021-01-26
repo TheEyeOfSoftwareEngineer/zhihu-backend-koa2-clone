@@ -15,18 +15,20 @@ const registerRoutes = require('./routes')
 
 const {CONF} = require('./conf/conf')
 
+// error handler
+// 在生产环境我们不返回stack的信息而在开发环境中返回所有信息
+// json化返回信息的处理库
+app.use(onerror({
+  postFormat: (e, {stack, ...rest}) => 
+    process.env.NODE_ENV === 'production' 
+    ? rest : {stack, ...rest}     
+  }
+)) 
+
 mongoose.connect(CONF.mongolink, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
   console.log("mongo is linking now...")
 })
 mongoose.connection.on('error', console.error)
-
-// error handler
-app.use(onerror({
-  postFormat: (e, {stack, ...rest}) => {
-    process.env.NODE_ENV === 'production' 
-    ? rest : {stack, ...rest} // 在生产环境我们不返回stack的信息而在开发环境中返回所有信息
-  }
-})) // json化返回信息的处理库
 
 // middlewares
 app.use(bodyparser({

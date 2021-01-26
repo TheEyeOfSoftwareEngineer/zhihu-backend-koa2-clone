@@ -29,3 +29,41 @@ Signature = HMACSHA256(base64UrlEncode(header)+"."+base64UrlEncode(payload), sec
 - RESTful API
 - 性能（JWT开销更大，但需要的信息都在JWT不需要查询；Session需要查询也消耗性能）
 - 时效性 （JWT不能实时更新，只能等实时更新 这一点不如session）
+
+### 操作JWT
+- 签名
+- 验证
+
+使用jsonwebtoken
+
+```javascript
+jwt = require('jsonwebtoken')
+
+// 生成token
+token = jwt.sign({
+  name: 'username'  
+}, 'secret')  // secret为秘钥
+
+// 后端解码
+jwt.decode(token)
+
+// 后端验证
+jwt.verify(token, 'secret')
+```
+
+#### 实际操作
+```javascript
+  async login(ctx) {
+    ctx.verifyParams({
+      name: {type: 'string', required: true},
+      password: {type: 'string', require: true}
+    })
+    const user = await User.findOne(ctx.request.body)
+    if(!user) ctx.throw(401, "用户名或密码不正确")
+    const {_id, name} = user
+    const token = jwt.sign({_id, name}, CONF.jwtkey, {expiresIn: '1d'})
+    ctx.body = { token }
+  }
+```
+
+
