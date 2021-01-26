@@ -1,8 +1,7 @@
-const User = require('../models/users')
+## Mongoose操作CRUD
 
-class UserController {
-
-  async find(ctx) {
+```javascript
+async find(ctx) {
     ctx.body = await User.find()
   }
 
@@ -40,7 +39,4 @@ class UserController {
     }
     ctx.body = user
   }
-
-}
-
-module.exports = new UserController();
+```
