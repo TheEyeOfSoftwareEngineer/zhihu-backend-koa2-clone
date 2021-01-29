@@ -6,7 +6,7 @@ const { auth } = require('../middlewares/auth')
 const {
   find, findById, create, update, delete: del,
   login, checkUser, listFollowing, follow, unfollow,
-  listFollower
+  listFollower, checkUserExist
 } = require('../controllers/users')
 
 router.get('/', find)
@@ -18,7 +18,7 @@ router.delete('/:id', auth, checkUser, del)
 router.post('/login', login)
 router.get('/:id/following', listFollowing)
 router.get('/:id/listfollower', listFollower)
-router.put('/following/:id', auth, follow)
-router.delete('/following/:id', auth, unfollow)
+router.put('/following/:id', auth, checkUserExist, follow)
+router.delete('/following/:id', auth, checkUserExist, unfollow)
 
 module.exports = router
