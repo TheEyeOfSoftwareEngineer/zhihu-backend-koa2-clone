@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/users')
+const Topic = require('../models/topics')
 const {CONF} = require('../conf/conf')
 
 class UserController {
@@ -16,7 +17,16 @@ class UserController {
   async findById(ctx) {
     const {fields = ''} = ctx.query
     const selectFileds = fields.split(';').filter(f=>f).map(f=> " +"+f).join('')
-    const user = await User.findById(ctx.params.id).select(selectFileds)
+    const populateFields = fields.split(';').filter(f=>f).map(f=>{
+      if(f === 'employments') {
+        return 'employments.company employments.job'
+      }
+      if(f === 'educations') {
+        return 'education.school education.major'
+      }
+      return f
+    }).join(' ')
+    const user = await User.findById(ctx.params.id).select(selectFileds).populate(populateFields)
     if(!user) { 
       ctx.throw(404, '该用户不存在')       
     }
@@ -118,6 +128,30 @@ class UserController {
     ctx.status = 204;
   }
 
+  async followTopic(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+followingTopics')
+    if(!me.followingTopics.map(id=>id.toString()).includes(ctx.params.id)) {
+      me.followingTopics.push(ctx.params.id)
+      me.save()
+    }
+    ctx.status = 204;
+  }
+
+  async unfollowTopic(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+followingTopics')
+    const index = me.followingTopics.map(id=>id.toString()).indexOf(ctx.params.id)
+    if(index > -1) {
+      me.followingTopics.splice(index, 1)
+      me.save()
+    }
+    ctx.status = 204;
+  }
+
+  async listFollowingTopics(ctx) {
+    const user = await User.findById(ctx.params.id).select('+followingTopics').populate('followingTopics')
+    if(!user) {ctx.throw(404, '用户不存在')}
+    ctx.body = user.followingTopics
+  }
 
 }
 
