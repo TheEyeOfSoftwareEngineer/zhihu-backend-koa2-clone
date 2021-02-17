@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/users')
 const Question = require('../models/questions')
+const Answer = require('../models/answers')
 const {CONF} = require('../conf/conf')
 
 class UserController {
@@ -156,6 +157,86 @@ class UserController {
   async listQuestions(ctx) {
     const questions = await Question.find({questioner: ctx.params.id})
     ctx.body = questions
+  }
+
+  async likeAnswer(ctx, next) {
+    const me = await User.findById(ctx.state.user._id).select('+likingAnswers')
+    if(!me.likingAnswers.map(id=>id.toString()).includes(ctx.params.id)) {
+      me.likingAnswers.push(ctx.params.id)
+      me.save()
+      await Answer.findByIdAndUpdate(ctx.params.id, {$inc: {voteCount: 1}})
+    }
+    ctx.status = 204
+    await next()
+  }
+
+  async unlikeAnswer(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+likingAnswers')
+    const index = me.likingAnswers.map(id=>id.toString()).indexOf(ctx.params.id)
+    if(index > -1) {
+      me.likingAnswers.splice(index, 1)
+      me.save()
+      await Answer.findByIdAndUpdate(ctx.params.id, {$inc: {voteCount: -1}})
+    }
+    ctx.status = 204
+  }
+
+  async listLikeAnswers(ctx) {
+    const user = await User.findById(ctx.params.id).select('+likingAnswers').populate('likingAnswers')
+    if(!user) {ctx.throw(404, '用户不存在')}
+    ctx.body = user.likingAnswers
+  }
+
+  async dislikeAnswer(ctx, next) {
+    const me = await User.findById(ctx.state.user._id).select('+dislikeAnswers')
+    if(!me.dislikeAnswers.map(id=>id.toString()).includes(ctx.params.id)) {
+      me.dislikeAnswers.push(ctx.params.id)
+      me.save()
+    }
+    ctx.status = 204;
+    await next()
+  }
+
+  async undislikeAnswer(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+dislikeAnswers')
+    const index = me.dislikeAnswers.map(id=>id.toString()).indexOf(ctx.params.id)
+    if(index > -1) {
+      me.dislikeAnswers.splice(index, 1)
+      me.save()
+    }
+    ctx.status = 204;
+  }
+
+  async listDislikeAnswers(ctx) {
+    const user = await User.findById(ctx.params.id).select('+dislikeAnswers').populate('dislikeAnswers')
+    if(!user) {ctx.throw(404, '用户不存在')}
+    ctx.body = user.dislikeAnswers
+  }
+
+  async collectionAnswer(ctx, next) {
+    const me = await User.findById(ctx.state.user._id).select('+collectionAnswers')
+    if(!me.collectionAnswers.map(id=>id.toString()).includes(ctx.params.id)) {
+      me.collectionAnswers.push(ctx.params.id)
+      me.save()
+    }
+    ctx.status = 204;
+    await next()
+  }
+
+  async uncollectionAnswer(ctx) {
+    const me = await User.findById(ctx.state.user._id).select('+collectionAnswers')
+    const index = me.collectionAnswers.map(id=>id.toString()).indexOf(ctx.params.id)
+    if(index > -1) {
+      me.collectionAnswers.splice(index, 1)
+      me.save()
+    }
+    ctx.status = 204;
+  }
+
+  async listCollectionAnswer(ctx) {
+    const user = await User.findById(ctx.params.id).select('+collectionAnswers').populate('collectionAnswers')
+    if(!user) {ctx.throw(404, '用户不存在')}
+    ctx.body = user.collectionAnswers
   }
 
 }
