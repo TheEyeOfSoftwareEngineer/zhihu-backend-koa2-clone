@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/users')
 const Question = require('../models/questions')
-const Answer = require('../models/answers')
+const Answer = require('../models/comments')
 const {CONF} = require('../conf/conf')
 
 class UserController {
